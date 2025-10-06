@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: foodpack-ai
+    env: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python -m model.train --train_csv data/seed_dataset.csv --model_dir artifacts
+    startCommand: uvicorn service.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MODEL_DIR
+        value: artifacts
+    healthCheckPath: /labels
+    autoDeploy: true

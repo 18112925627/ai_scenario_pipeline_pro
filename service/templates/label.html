@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><title>标注台 · 场景标签</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto; margin:24px; background:#f7f7f7;}
+.card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.06);margin-bottom:16px;}
+.btn{padding:8px 14px;border-radius:999px;background:#111;color:#fff;border:none;cursor:pointer;margin-right:8px;}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#efefef;margin-right:6px;margin-top:6px;}
+label{display:inline-flex;align-items:center;margin-right:12px;margin-top:6px;}
+</style></head><body>
+<div class="card"><h2>标注台 · 场景标签</h2>
+<p>点击“拉取待标注”获取未标注样本 → 勾选正确场景 → 提交</p>
+<button class="btn" onclick="pull()">拉取待标注</button>
+<a class="btn" href="/export.csv" target="_blank">导出 CSV</a>
+</div>
+<div id="list"></div>
+<script>
+const LABELS = {{ labels|tojson }};
+async function pull(){
+  const r = await fetch('/al/suggest?k=20').then(r=>r.json());
+  const list = document.getElementById('list'); list.innerHTML='';
+  r.items.forEach((it, idx)=>{
+    const div=document.createElement('div'); div.className='card';
+    div.innerHTML = \`
+      <div><b>样本 \${idx+1}</b></div>
+      <div style="margin:8px 0;">\${(it.text||'').replace(/</g,'&lt;')}</div>
+      <div id="tags-\${idx}"></div>
+      <div style="margin-top:8px;"><button class="btn" onclick="submitOne(\${idx}, \\`\${it.text}\\`)">提交</button></div>
+    \`;
+    list.appendChild(div);
+    const t = document.getElementById('tags-'+idx);
+    LABELS.forEach(l=>{
+      const lab=document.createElement('label');
+      lab.innerHTML = \`<input type="checkbox" value="\${l}"><span class="badge">\${l}</span>\`;
+      t.appendChild(lab);
+    });
+  });
+}
+async function submitOne(idx, text){
+  const box = document.querySelectorAll('#tags-'+idx+' input[type=checkbox]:checked');
+  const arr = Array.from(box).map(x=>x.value);
+  await fetch('/feedback',{method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ ingredientsText: text, label: arr, meta:{ source:'label-ui' }}) });
+  alert('提交成功');
+}
+</script>
+</body></html>

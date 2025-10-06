@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [{
+    "name": "Start API (uvicorn)",
+    "type": "python",
+    "request": "launch",
+    "module": "uvicorn",
+    "args": ["service.app:app", "--host", "0.0.0.0", "--port", "8080", "--reload"],
+    "env": { "MODEL_DIR": "artifacts" }
+  }]
+}

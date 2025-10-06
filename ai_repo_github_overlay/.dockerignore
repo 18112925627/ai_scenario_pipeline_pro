@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.sqlite3
+.vscode/
+.idea/
+.venv/
+.env
+.env.*
+.git/
+.gitignore
+artifacts/
+data/*
+!data/seed_dataset.csv
